@@ -9,14 +9,14 @@ import {
   Paintbrush, ShieldAlert, KeyRound, Server, ListChecks, MessageSquare,
   CreditCard, TrendingUp, FlaskConical, History,
   GitBranch, Shield, Layers, Activity,
-  Cpu, Download, Wrench, Brain,
-  BookOpen, FlaskRound, LayoutDashboard, FileBarChart,
-  Link, Bell, Store, ShieldCheck,
+  Download, Brain,
+  BookOpen, FileBarChart,
+  Link2, Store,
   GitMerge, Megaphone, Users, ArrowRightLeft,
-  Star, ClipboardList, Languages, SearchCode,
-  Link2, ShieldCheck, Phone,
-  Gauge, Shield,
+  Star, ClipboardList, SearchCode,
+  Gauge, Phone, FlaskRound, Languages,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const workspaces = ["客戶 A — 電商客服", "客戶 B — 房仲業務", "客戶 C — 醫療診所"];

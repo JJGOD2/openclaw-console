@@ -242,7 +242,7 @@ export default function AgentChainsPage() {
                       {runs.slice(0,5).map(run=>(
                         <div key={run.id} className="py-2 border-b border-gray-50 last:border-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${run.status==="done"?"bg-green-50 text-green-700":"run.status==="failed"?"bg-red-50 text-red-600":"bg-amber-50 text-amber-700"}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${run.status==="done"?"bg-green-50 text-green-700":run.status==="failed"?"bg-red-50 text-red-600":"bg-amber-50 text-amber-700"}`}>
                               {run.status}
                             </span>
                             <span className="text-[11px] text-gray-500 flex-1 truncate">{run.input.slice(0,50)}</span>
