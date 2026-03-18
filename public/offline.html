@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Console — 離線中</title>
+<style>
+  body { font-family: system-ui, sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; background:#f9fafb; }
+  .box { text-align:center; max-width:360px; padding:40px 24px; }
+  .icon { font-size:48px; margin-bottom:16px; }
+  h1 { font-size:20px; font-weight:500; margin:0 0 8px; color:#111827; }
+  p  { font-size:14px; color:#6b7280; line-height:1.6; margin:0 0 24px; }
+  button { background:#BA7517; color:white; border:none; padding:10px 24px; border-radius:8px; font-size:14px; cursor:pointer; }
+  button:hover { background:#854F0B; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">📡</div>
+  <h1>目前離線</h1>
+  <p>無法連接到 OpenClaw Console。<br>請確認網路連線後重試。</p>
+  <button onclick="window.location.reload()">重新整理</button>
+</div>
+</body>
+</html>
