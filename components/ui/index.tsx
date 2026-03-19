@@ -117,7 +117,7 @@ export function Btn({
   className,
 }: {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: "default" | "primary" | "danger";
   className?: string;
 }) {
