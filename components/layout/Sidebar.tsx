@@ -17,7 +17,6 @@ import {
   Gauge, Phone, FlaskRound, Languages,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
 const workspaces = ["客戶 A — 電商客服", "客戶 B — 房仲業務", "客戶 C — 醫療診所"];
 
