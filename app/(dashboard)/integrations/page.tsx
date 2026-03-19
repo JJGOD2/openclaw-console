@@ -23,7 +23,7 @@ export default function IntegrationsPage() {
         {integrations.map((i) => (
           <div key={i.id}
             className="bg-white border border-gray-100 rounded-xl p-3.5 hover:border-gray-200 cursor-pointer transition-colors"
-            onClick={() => router.push(`/integrations/${i.type ?? i.name.toLowerCase().replace(/\s+/g,"-")}`)}>
+            onClick={() => router.push(`/integrations/${i.id ?? i.name.toLowerCase().replace(/\s+/g,"-")}`)}>
             <div className="flex items-center gap-2.5 mb-2">
               <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-medium shrink-0", i.colorClass)}>
                 {i.initial}

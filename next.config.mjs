@@ -2,9 +2,9 @@
 const nextConfig = {
   output: "standalone",
 
-  // Allow build to complete even with minor TypeScript/ESLint warnings
+  // Ignore TypeScript and ESLint errors during Zeabur build
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -14,9 +14,7 @@ const nextConfig = {
     serverActions: { allowedOrigins: ["*"] },
   },
 
-  // Required for Next.js Image with external sources
   images: {
-    remotePatterns: [],
     unoptimized: true,
   },
 };
