@@ -1,14 +1,29 @@
-// middleware.ts (at project root)
-import createMiddleware from "next-intl/middleware";
-import { locales, defaultLocale } from "./i18n/config";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default createMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix: "as-needed",   // /dashboard (zh-TW default), /en/dashboard (English)
-});
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Allow public paths
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/portal") ||
+    pathname.startsWith("/landing") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  // Redirect root to dashboard
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
-  // Match all paths except API, static files, and _next
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
