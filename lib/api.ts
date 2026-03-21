@@ -1,7 +1,7 @@
 // lib/api.ts
 // 前端統一 API 客戶端 — 把 mock-data 換成真實 fetch 只需改這個檔案
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const BASE = (typeof window !== "undefined" && (window as any).__NEXT_PUBLIC_API_URL__) || process.env.NEXT_PUBLIC_API_URL || "https://openclaw-backend.zeabur.app";
 
 // ── Auth token helpers (localStorage in browser) ─────────────
 function getToken(): string | null {
