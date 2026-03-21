@@ -2,7 +2,12 @@
 const nextConfig = {
   output: "standalone",
 
-  // Ignore TypeScript and ESLint errors during Zeabur build
+  // Hardcode API URL so it's available at build time
+  // even without Build Arguments
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "https://openclaw-backend.zeabur.app",
+  },
+
   typescript: {
     ignoreBuildErrors: true,
   },
