@@ -2,528 +2,678 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const stats = [
-  { value: "7+", label: "支援通道", sub: "LINE · Telegram · Slack · Discord · WhatsApp · SMS · 語音" },
-  { value: "47", label: "資料表架構", sub: "完整企業級資料模型" },
-  { value: "78+", label: "API 端點", sub: "完整後端服務覆蓋" },
-  { value: "14", label: "排程任務", sub: "自動化背景工作" },
+// ── Data ──────────────────────────────────────────────────────
+
+const pains = [
+  {
+    emoji: "😓",
+    before: "LINE 訊息要手動回，一天幾百則根本回不完",
+    after: "AI 員工 24 小時自動回覆，你只需要審核高風險的那幾則",
+  },
+  {
+    emoji: "😰",
+    before: "請顧問架 AI 客服，花了幾十萬，3 個月後還在開會",
+    after: "MyWrapper 圖形化設定，當天建立 Agent、當天上線",
+  },
+  {
+    emoji: "😤",
+    before: "AI 說錯話，客訴來了才知道，已經來不及",
+    after: "所有 AI 回覆先進審核佇列，你確認後才發送",
+  },
+  {
+    emoji: "💸",
+    before: "API 費用每月帳單都嚇一跳，不知道哪裡燒錢",
+    after: "每個客戶獨立計費追蹤，Token 即時監控，超標自動告警",
+  },
+  {
+    emoji: "🤯",
+    before: "5 個客戶、7 個通道，設定散落在各個地方，改一個要找半天",
+    after: "所有 Workspace、Agent、通道，一個後台管理到底",
+  },
+  {
+    emoji: "😩",
+    before: "AI 不懂我的產品，回答雞同鴨講，客戶越用越不滿意",
+    after: "上傳產品文件、FAQ、政策，AI 自動學習，回答準確率大幅提升",
+  },
 ];
 
-const features = [
+const industries = [
   {
-    icon: "🤖",
-    title: "多 Agent 圖形化管理",
-    pain: "傳統方式需要工程師修改設定檔才能調整 AI 行為，業務等工程、工程忙救火。",
-    solution: "圖形化介面直接設定 System Prompt、Tool 綁定。非技術人員 5 分鐘內建立或調整 Agent。",
-    tags: ["System Prompt 編輯器", "Prompt 版本控制", "A/B 測試", "多模型切換"],
+    icon: "🛒",
+    name: "電商 / 零售",
+    pains: ["訂單查詢、退換貨佔客服量 70%，純人工應付不來", "促銷期間訊息量暴增 5 倍，臨時找不到人"],
+    solutions: ["自動處理訂單查詢、物流追蹤、退換貨申請", "連接 Google Sheets 同步訂單資料，AI 即時查詢回覆"],
+    agent: "客服 Aria — 電商版",
+    metrics: ["↓ 80% 客服工作量", "↑ 24 小時回覆率", "= 3 天上線"],
   },
   {
-    icon: "📱",
-    title: "7 大通道一站管理",
-    pain: "客戶在哪裡服務就要在哪裡，但同時維護 7 個平台的 webhook 技術門檻極高。",
-    solution: "統一介面管理所有通道。同一個 Agent 同時服務多個通道，訊息格式自動轉換。",
-    tags: ["LINE OA", "Telegram Bot", "Slack", "Discord", "WhatsApp", "SMS", "語音"],
+    icon: "🏠",
+    name: "房仲 / 租賃",
+    pains: ["潛在客戶半夜詢問，隔天才回已經找別家了", "預約帶看時間來回確認，一個案件要 Line 10 幾則"],
+    solutions: ["AI 即時回覆案件查詢、自動預約帶看時間", "連接 Google Calendar，帶看行程自動新增"],
+    agent: "業務 Rex — 房仲版",
+    metrics: ["↓ 60% 預約往返溝通", "↑ 3x 潛在客戶轉換", "= 1 天上線"],
   },
   {
-    icon: "👁",
-    title: "人工審核流程",
-    pain: "AI 有時會幻覺，在客服場景說錯資訊可能造成客訴甚至法律風險。",
-    solution: "AI 先起草回覆，人工審核確認後才發送。可設定特定情境自動通過，高風險操作需把關。",
-    tags: ["AI 草稿 → 人工確認", "審核協作留言", "自動通過規則", "即時通知"],
+    icon: "🏥",
+    name: "診所 / 醫療",
+    pains: ["掛號電話從早響到晚，護理師同時要看診又要接電話", "病患問診前說明、注意事項每天重複解釋"],
+    solutions: ["LINE 自動掛號、取消、時段查詢，24 小時不打烊", "衛教資訊自動傳送，診前提醒自動發出"],
+    agent: "診所 Luna — 醫療版",
+    metrics: ["↓ 70% 電話詢問量", "↑ 病患滿意度", "= 2 天上線"],
   },
   {
-    icon: "🛡",
-    title: "企業級安全治理",
-    pain: "AI 客服系統掌握大量用戶對話，一旦洩漏或被注入攻擊，後果嚴重。",
-    solution: "Prompt 注入偵測、AES-256-GCM 加密儲存、Circuit Breaker 熔斷、完整 Audit Log。",
-    tags: ["Prompt 注入防護", "AES-256 加密", "Audit Log", "Circuit Breaker"],
+    icon: "🏢",
+    name: "企業內部",
+    pains: ["HR 每天回同樣的問題：請假怎麼申請、福利有哪些", "新人 onboarding 文件散落各處，找資料找半天"],
+    solutions: ["員工自助查詢 HR 政策、假別規定、報帳流程", "連接 Notion 知識庫，文件即時同步，問什麼都有答案"],
+    agent: "內部助理 HR Bot",
+    metrics: ["↓ 90% 重複性 HR 問答", "↑ 員工滿意度", "= 1 天上線"],
+  },
+  {
+    icon: "📦",
+    name: "客服外包商",
+    pains: ["接了 10 個客戶，每個通道設定、Agent 管理各自獨立，管理成本高", "客戶要月報，整理資料要花 2 天"],
+    solutions: ["多租戶架構，一個後台管理所有客戶，獨立帳單計費", "AI 自動產生月度報告，一鍵發送客戶"],
+    agent: "多租戶管理中心",
+    metrics: ["↓ 60% 管理成本", "= 月報自動化", "↑ 可接客戶數量"],
+  },
+];
+
+const steps = [
+  {
+    num: "01",
+    time: "5 分鐘",
+    title: "建立你的 AI 員工",
+    desc: "輸入 AI 的名字、角色、個性、回覆風格。上傳你的產品說明、FAQ、政策文件。不需要寫程式，不需要懂 AI。",
+    detail: "就像填寫員工入職表格一樣簡單。",
+    color: "#eff6ff",
+    accent: "#1a56db",
+  },
+  {
+    num: "02",
+    time: "15 分鐘",
+    title: "連接你的通道",
+    desc: "把 LINE Official Account、Telegram Bot 的 Webhook 網址複製貼上到 MyWrapper。完成。",
+    detail: "我們提供逐步圖文教學，不會卡關。",
+    color: "#f0fdf4",
+    accent: "#16a34a",
+  },
+  {
+    num: "03",
+    time: "當天",
+    title: "測試並上線",
+    desc: "在 Playground 直接跟你的 AI 員工對話，確認回答符合預期。滿意了就開啟通道，開始服務真實用戶。",
+    detail: "上線後隨時可以調整，不需要重新部署。",
+    color: "#fefce8",
+    accent: "#ca8a04",
+  },
+  {
+    num: "04",
+    time: "持續",
+    title: "監督與優化",
+    desc: "即時看到每一則對話、每一個 AI 回覆。發現不好的回答，直接修改 Prompt，下次就會更好。",
+    detail: "AI 員工的每個行為都在你的掌控之中。",
+    color: "#fdf4ff",
+    accent: "#9333ea",
+  },
+];
+
+const monitoring = [
+  {
+    icon: "💬",
+    title: "每一則對話都看得到",
+    desc: "完整的對話記錄，知道用戶說什麼、AI 怎麼回，哪裡說得好、哪裡需要改進。",
+  },
+  {
+    icon: "⚡",
+    title: "高風險訊息自動攔截",
+    desc: "客訴、法律糾紛、敏感內容，系統自動標記進入審核佇列，等你確認後才發送。",
   },
   {
     icon: "📊",
-    title: "成本與用量監控",
-    pain: "AI API 費用容易失控，多個客戶共用時很難追蹤哪個 Workspace 燒了多少錢。",
-    solution: "每個 Workspace 獨立計費，Token 即時追蹤，月度費用預測，超標自動告警。AI 自動產生客戶月報。",
-    tags: ["Token 追蹤", "費用預測", "超標告警", "AI 客戶報告"],
+    title: "即時數據儀表板",
+    desc: "訊息量、回覆率、Token 費用、滿意度評分，全部即時顯示，一眼掌握 AI 工作狀況。",
   },
   {
-    icon: "🧠",
-    title: "知識庫 RAG 整合",
-    pain: "通用 AI 不了解你的產品政策。每次在 Prompt 塞大量文件，浪費 Token 效果又差。",
-    solution: "上傳文件自動向量化，對話時智能檢索相關段落注入上下文。回答更準確、費用更低。",
-    tags: ["文件向量化", "語意搜尋", "自動注入上下文", "多知識庫管理"],
+    icon: "🔔",
+    title: "超標自動告警",
+    desc: "費用超過預算、錯誤率升高、訊息量異常，第一時間通知你，不用一直盯著後台。",
   },
   {
-    icon: "⛓",
-    title: "Agent Chain 鏈式協作",
-    pain: "複雜任務靠單一 AI 往往不夠，翻譯、分析、決策、執行需要多個 Agent 協作。",
-    solution: "視覺化 Chain 編輯器串接多個 Agent，支援串行、並行、條件分支，輸出統一答案。",
-    tags: ["串行 / 並行執行", "條件分支", "結果合併", "視覺化編輯"],
+    icon: "📋",
+    title: "月度報告自動產生",
+    desc: "AI 自動整理本月對話統計、費用明細、常見問題分析，一鍵產生客戶報告。",
   },
   {
-    icon: "🔗",
-    title: "Google / Notion 整合",
-    pain: "AI 對話產生的資訊停留在聊天室，無法融入既有工作流程，造成資料孤島。",
-    solution: "對話紀錄自動同步 Google Sheets，預約寫入 Calendar，查詢 Notion 資料庫。",
-    tags: ["Google Sheets", "Google Calendar", "Gmail", "Notion"],
+    icon: "🔍",
+    title: "Log 全程追蹤",
+    desc: "每一個 AI 行為、每一次工具呼叫、每一次通道連線都有完整日誌，問題發生時馬上找到原因。",
   },
 ];
 
 const plans = [
   {
-    name: "Starter", price: "NT$1,490", period: "/月",
-    desc: "個人 / 小型團隊起步使用", highlight: false,
-    items: ["1 個 Workspace", "3 個 Agent", "LINE + Telegram 通道", "基本 Log & 成本報表", "社群支援"],
+    name: "Starter",
+    price: "NT$1,490",
+    period: "/月",
+    highlight: false,
+    desc: "小型團隊，快速驗證",
+    items: ["1 個 Workspace", "3 個 AI 員工", "LINE + Telegram", "基本監控報表", "社群支援"],
     cta: "免費試用 14 天",
   },
   {
-    name: "Pro", price: "NT$4,990", period: "/月",
-    desc: "中小企業主力方案", highlight: true, badge: "最受歡迎",
-    items: ["最多 10 個 Workspace", "無上限 Agent", "所有 7 大通道", "人工審核流程", "知識庫 RAG", "Google / Notion 整合", "告警通知", "Email 支援"],
+    name: "Pro",
+    price: "NT$4,990",
+    period: "/月",
+    highlight: true,
+    badge: "最受歡迎",
+    desc: "中小企業主力方案",
+    items: ["10 個 Workspace", "無上限 AI 員工", "7 大通道全開", "人工審核流程", "知識庫 RAG", "Google / Notion 整合", "費用告警通知"],
     cta: "立即開始",
   },
   {
-    name: "Business", price: "洽談", period: "",
-    desc: "企業客戶，無上限擴展", highlight: false,
-    items: ["無上限 Workspace", "白標 / 自訂網域", "多角色權限管理", "Agent Chain 協作", "私有雲部署", "API & Webhook 開放", "專屬導入顧問", "SLA 保障"],
+    name: "Business",
+    price: "洽談",
+    period: "",
+    highlight: false,
+    desc: "企業 / 外包商專案",
+    items: ["無上限 Workspace", "多角色權限管理", "白標自訂網域", "AI Chain 協作", "私有雲部署", "API 開放串接", "專屬顧問 + SLA"],
     cta: "聯絡業務",
   },
 ];
 
 const faqs = [
-  { q: "不懂程式碼可以用嗎？", a: "可以。MyWrapper 的核心設計就是讓非技術人員能管理 AI 客服。建立 Agent、設定通道、審核訊息全圖形化操作，不需碰程式碼。技術設定部分由我們協助完成。" },
-  { q: "支援哪些 AI 模型？", a: "預設使用 Claude 3.5 Sonnet，可切換 Claude Haiku（速度快）或 Claude Opus（最高品質）。透過 OpenRouter 也可使用 GPT-4、Gemini 等模型。" },
-  { q: "資料安全性如何保障？", a: "所有 API Key 以 AES-256-GCM 加密儲存。每次設定變更有 Audit Log 記錄。Sender Allowlist 只接受指定用戶。Prompt 注入偵測防範惡意攻擊。" },
-  { q: "可以多人協作管理嗎？", a: "支援多角色權限。可設定 Admin（完整控制）、Operator（日常操作）、Reviewer（只能審核訊息）等角色，適合團隊分工。" },
-  { q: "LINE Official Account 怎麼串接？", a: "在 MyWrapper 後台取得 Webhook URL，貼到 LINE Developers Console 即可。我們提供詳細教學，通常 30 分鐘內完成。" },
-  { q: "提供免費試用嗎？", a: "Starter 方案 14 天免費試用，不需信用卡。Pro 以上請聯絡業務安排一對一 Demo，我們會根據你的業務場景提供建議。" },
+  {
+    q: "完全不懂技術，可以自己設定嗎？",
+    a: "可以。MyWrapper 的設計原則就是「業務人員自己會用」。建立 AI 員工、設定通道、調整 Prompt、審核訊息，全程圖形化介面，沒有任何步驟需要寫程式。技術串接部分我們提供逐步教學，或可選擇 Done-for-You 方案由我們代為設定。",
+  },
+  {
+    q: "AI 如果說錯話怎麼辦？",
+    a: "這正是我們設計「人工審核流程」的原因。你可以設定 AI 的每一則回覆都先進入審核佇列，由你確認後才發送。也可以設定低風險問題自動通過、高風險問題（如退款、法律相關）必須人工確認。你有完全的控制權。",
+  },
+  {
+    q: "設定完要多久才能上線服務客戶？",
+    a: "最快當天。建立 AI 員工約 5-10 分鐘，連接 LINE OA 約 15 分鐘，在 Playground 測試確認後就可以開啟。Done-for-You 方案通常 3 個工作天完成全部設定。",
+  },
+  {
+    q: "LINE、Telegram 以外還支援哪些通道？",
+    a: "目前支援 LINE Official Account、Telegram Bot、Slack、Discord、WhatsApp Business、Twilio SMS、Twilio 語音通話，共 7 個通道。同一個 AI 員工可以同時服務多個通道。",
+  },
+  {
+    q: "費用怎麼計算？AI 的 API 費用包含在內嗎？",
+    a: "MyWrapper 的月費是平台服務費。AI 呼叫的 API 費用（OpenRouter / Anthropic）需要另外申請 API Key 並自行承擔，MyWrapper 提供詳細的 Token 用量追蹤和費用監控，讓你清楚掌控每一分錢。",
+  },
+  {
+    q: "我有多個客戶要管理，可以嗎？",
+    a: "這正是 Workspace 設計的核心功能。每個客戶一個獨立 Workspace，資料完全隔離，獨立帳單追蹤，獨立設定 AI 員工和通道。Pro 方案最多 10 個，Business 方案無上限，月報告可以自動產生發送給每位客戶。",
+  },
 ];
 
-function DashboardMockup() {
-  const agents = [
-    { name:"客服 Aria", initials:"AR", channel:"LINE OA · 電商", status:"啟用", msgs:847, color:"#dbeafe", tcolor:"#1d4ed8" },
-    { name:"業務 Rex",  initials:"RX", channel:"Telegram · 房仲", status:"啟用", msgs:312, color:"#ede9fe", tcolor:"#6d28d9" },
-    { name:"診所 Luna", initials:"LU", channel:"LINE OA · 診所",  status:"待機", msgs:156, color:"#d1fae5", tcolor:"#065f46" },
-  ];
-  const logs = [
-    { type:"CHAT",   msg:"[LINE] user_882 → Aria：訂單 #20240918 查詢 → 回覆已發送" },
-    { type:"TOOL",   msg:"[Telegram] Rex → calendar-book：預約帶看 2026-03-20 成功" },
-    { type:"REVIEW", msg:"[LINE] 待審核：租金糾紛處理方式，等待人工確認" },
-    { type:"SYSTEM", msg:"Gateway health check passed · 回應時間 142ms" },
-  ];
-  const logColor: Record<string,{bg:string,text:string}> = {
-    CHAT:{bg:"#dbeafe",text:"#1e40af"},
-    TOOL:{bg:"#d1fae5",text:"#065f46"},
-    REVIEW:{bg:"#fef3c7",text:"#92400e"},
-    SYSTEM:{bg:"#f3f4f6",text:"#6b7280"},
-  };
+// ── Components ────────────────────────────────────────────────
+
+function Nav({ scrolled }: { scrolled: boolean }) {
   return (
-    <div style={{background:"#fff",borderRadius:16,border:"1px solid #f0f0f0",boxShadow:"0 20px 60px rgba(0,0,0,0.08)",overflow:"hidden"}}>
-      <div style={{background:"#f9fafb",borderBottom:"1px solid #f0f0f0",padding:"10px 16px",display:"flex",alignItems:"center",gap:8}}>
-        <div style={{display:"flex",gap:5}}>
-          {["#f87171","#fbbf24","#34d399"].map(c=><div key={c} style={{width:10,height:10,borderRadius:"50%",background:c}}/>)}
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+      transition: "all .25s",
+      background: scrolled ? "rgba(255,255,255,0.97)" : "transparent",
+      backdropFilter: scrolled ? "blur(12px)" : "none",
+      borderBottom: scrolled ? "1px solid #f0f0f0" : "none",
+      boxShadow: scrolled ? "0 2px 20px rgba(0,0,0,0.06)" : "none",
+    }}>
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <img src="/logo.png" alt="MyWrapper" style={{ height: 36, width: "auto", objectFit: "contain" }}
+          onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          {[["痛點", "#pain"], ["適用情境", "#industry"], ["如何運作", "#how"], ["定價", "#pricing"]].map(([l, h]) => (
+            <a key={String(l)} href={String(h)} style={{ fontSize: 14, color: "#555", textDecoration: "none" }}>{l}</a>
+          ))}
         </div>
-        <div style={{flex:1,background:"#fff",borderRadius:6,height:22,display:"flex",alignItems:"center",padding:"0 10px",border:"1px solid #e5e7eb"}}>
-          <span style={{fontSize:10,color:"#9ca3af"}}>console.mywrapper.ai/dashboard</span>
+        <div style={{ display: "flex", gap: 10 }}>
+          <Link href="/login" style={{ border: "1px solid #e5e7eb", color: "#374151", padding: "8px 18px", borderRadius: 10, fontSize: 13, textDecoration: "none" }}>
+            登入
+          </Link>
+          <Link href="/login" style={{ background: "#1a56db", color: "#fff", padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
+            免費試用 14 天
+          </Link>
         </div>
       </div>
-      <div style={{display:"flex"}}>
-        <div style={{width:130,background:"#f9fafb",borderRight:"1px solid #f0f0f0",padding:12}}>
-          {["總覽","Workspace","Agent","通道","工具","安全","Log","用量","分析"].map((item,i)=>(
-            <div key={item} style={{padding:"6px 8px",borderRadius:8,fontSize:11,marginBottom:2,background:i===0?"#1a56db":"transparent",color:i===0?"#fff":"#6b7280",cursor:"pointer"}}>
-              {item}
+    </nav>
+  );
+}
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1d4ed8", fontSize: 12, fontWeight: 600, padding: "5px 14px", borderRadius: 100, border: "1px solid #bfdbfe", marginBottom: 20, textTransform: "uppercase", letterSpacing: 1 }}>
+      {children}
+    </div>
+  );
+}
+
+function DashMockup() {
+  return (
+    <div style={{ background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", overflow: "hidden" }}>
+      {/* Browser chrome */}
+      <div style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb", padding: "10px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", gap: 5 }}>
+          {["#f87171", "#fbbf24", "#34d399"].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+        </div>
+        <div style={{ flex: 1, background: "#fff", borderRadius: 6, height: 22, display: "flex", alignItems: "center", padding: "0 10px", border: "1px solid #e5e7eb" }}>
+          <span style={{ fontSize: 10, color: "#9ca3af" }}>console.mywrapper.ai</span>
+        </div>
+      </div>
+      <div style={{ display: "flex" }}>
+        {/* Sidebar */}
+        <div style={{ width: 130, background: "#f9fafb", borderRight: "1px solid #f0f0f0", padding: 12, flexShrink: 0 }}>
+          {[["總覽", true], ["AI 員工", false], ["通道", false], ["審核佇列", false], ["監控", false], ["用量", false]].map(([name, active]) => (
+            <div key={String(name)} style={{ padding: "7px 10px", borderRadius: 8, fontSize: 11, marginBottom: 3, background: active ? "#1a56db" : "transparent", color: active ? "#fff" : "#6b7280", fontWeight: active ? 600 : 400 }}>
+              {String(name)}
             </div>
           ))}
         </div>
-        <div style={{flex:1,padding:16}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:16}}>
-            {[["今日訊息","1,247","↑ 18%","#16a34a"],["本月費用","NT$2,840","預算剩 64%","#2563eb"],["Tool 呼叫","18,247","本月累計","#6b7280"],["待審核","3 則","需要處理","#d97706"]].map(([l,v,s,c])=>(
-              <div key={String(l)} style={{background:"#f9fafb",borderRadius:12,padding:12}}>
-                <div style={{fontSize:9,color:"#9ca3af",marginBottom:4}}>{l}</div>
-                <div style={{fontSize:18,fontWeight:700,lineHeight:1}}>{v}</div>
-                <div style={{fontSize:9,color:String(c),marginTop:4}}>{s}</div>
+        {/* Content */}
+        <div style={{ flex: 1, padding: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
+            {[["今日回覆", "1,247", "↑ AI 處理 94%", "#16a34a"], ["待人工審核", "3 則", "需要你確認", "#d97706"], ["本月 AI 費用", "NT$840", "預算剩 72%", "#2563eb"], ["客戶滿意度", "96.2%", "本月評分", "#7c3aed"]].map(([l, v, s, c]) => (
+              <div key={String(l)} style={{ background: "#f9fafb", borderRadius: 12, padding: 12 }}>
+                <div style={{ fontSize: 9, color: "#9ca3af", marginBottom: 4 }}>{l}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, lineHeight: 1 }}>{v}</div>
+                <div style={{ fontSize: 9, color: String(c), marginTop: 4 }}>{s}</div>
               </div>
             ))}
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            <div>
-              <div style={{fontSize:9,fontWeight:600,color:"#9ca3af",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Agent 狀態</div>
-              {agents.map(a=>(
-                <div key={a.name} style={{display:"flex",alignItems:"center",gap:10,background:"#f9fafb",borderRadius:10,padding:"8px 10px",marginBottom:6}}>
-                  <div style={{width:26,height:26,borderRadius:"50%",background:a.color,color:a.tcolor,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,flexShrink:0}}>
-                    {a.initials}
-                  </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:10,fontWeight:600,marginBottom:1}}>{a.name}</div>
-                    <div style={{fontSize:9,color:"#9ca3af"}}>{a.channel} · {a.msgs} 則</div>
-                  </div>
-                  <span style={{fontSize:8,padding:"2px 6px",borderRadius:20,fontWeight:500,background:a.status==="啟用"?"#d1fae5":"#f3f4f6",color:a.status==="啟用"?"#065f46":"#6b7280"}}>
-                    {a.status}
-                  </span>
+          {/* Agent list */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>AI 員工狀態</div>
+            {[
+              { name: "客服 Aria", ch: "LINE OA · 電商", msgs: 847, ok: true, initials: "AR", bg: "#dbeafe", tc: "#1d4ed8" },
+              { name: "業務 Rex", ch: "Telegram · 房仲", msgs: 312, ok: true, initials: "RX", bg: "#ede9fe", tc: "#6d28d9" },
+              { name: "診所 Luna", ch: "LINE OA · 診所", msgs: 156, ok: false, initials: "LU", bg: "#d1fae5", tc: "#065f46" },
+            ].map(a => (
+              <div key={a.name} style={{ display: "flex", alignItems: "center", gap: 10, background: "#f9fafb", borderRadius: 10, padding: "8px 12px", marginBottom: 6 }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: a.bg, color: a.tc, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{a.initials}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600 }}>{a.name}</div>
+                  <div style={{ fontSize: 9, color: "#9ca3af" }}>{a.ch} · {a.msgs} 則</div>
                 </div>
-              ))}
-            </div>
-            <div>
-              <div style={{fontSize:9,fontWeight:600,color:"#9ca3af",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>即時 Log</div>
-              {logs.map((log,i)=>(
-                <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,background:"#f9fafb",borderRadius:10,padding:"7px 10px",marginBottom:6}}>
-                  <span style={{fontSize:8,padding:"2px 5px",borderRadius:4,fontWeight:600,background:logColor[log.type].bg,color:logColor[log.type].text,flexShrink:0,marginTop:1}}>
-                    {log.type}
-                  </span>
-                  <div style={{fontSize:9,color:"#6b7280",lineHeight:1.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{log.msg}</div>
+                <span style={{ fontSize: 8, padding: "3px 8px", borderRadius: 20, fontWeight: 600, background: a.ok ? "#d1fae5" : "#f3f4f6", color: a.ok ? "#065f46" : "#6b7280" }}>
+                  {a.ok ? "工作中" : "待機"}
+                </span>
+              </div>
+            ))}
+          </div>
+          {/* Review queue preview */}
+          <div style={{ background: "#fffbeb", borderRadius: 10, padding: 10, border: "1px solid #fde68a" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: "#92400e", marginBottom: 6 }}>⚡ 3 則待審核訊息</div>
+            {[
+              { user: "user_882", msg: "我要申請退款，你們的產品有問題", risk: "high" },
+              { user: "user_445", msg: "請問明天 14:00 可以帶看嗎？", risk: "low" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0", borderTop: i === 0 ? "none" : "1px solid #fde68a" }}>
+                <span style={{ fontSize: 8, padding: "2px 6px", borderRadius: 4, fontWeight: 600, background: item.risk === "high" ? "#fee2e2" : "#d1fae5", color: item.risk === "high" ? "#dc2626" : "#065f46", flexShrink: 0 }}>
+                  {item.risk === "high" ? "高風險" : "低風險"}
+                </span>
+                <span style={{ fontSize: 10, color: "#374151" }}>{item.msg}</span>
+                <div style={{ display: "flex", gap: 4, marginLeft: "auto", flexShrink: 0 }}>
+                  <button style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 8, fontWeight: 600, cursor: "pointer" }}>核准</button>
+                  <button style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 8, cursor: "pointer" }}>編輯</button>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ReviewMockup() {
-  return (
-    <div style={{background:"#fff",borderRadius:16,border:"1px solid #f0f0f0",padding:16}}>
-      <div style={{fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:1,marginBottom:12}}>人工審核佇列</div>
-      {[
-        { user:"user_882", platform:"LINE", risk:"low",  msg:"我訂單付款後沒收到確認信，這樣算成立嗎？", draft:"您好！訂單付款成功後系統會在 5 分鐘內發送確認信，請先確認垃圾郵件匣。" },
-        { user:"user_445", platform:"Telegram", risk:"high", msg:"你們公司詐騙！我要告你們！退款！", draft:"非常抱歉造成您的不便。請您告訴我訂單編號，我立刻協助您處理退款申請。" },
-      ].map((item,i)=>(
-        <div key={i} style={{border:"1px solid #f0f0f0",borderRadius:12,padding:12,marginBottom:i===0?10:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <span style={{fontSize:9,background:"#dbeafe",color:"#1e40af",padding:"2px 8px",borderRadius:20,fontWeight:600}}>{item.platform}</span>
-            <span style={{fontSize:10,color:"#6b7280"}}>{item.user}</span>
-            <span style={{marginLeft:"auto",fontSize:9,padding:"2px 8px",borderRadius:20,fontWeight:600,background:item.risk==="high"?"#fee2e2":"#d1fae5",color:item.risk==="high"?"#dc2626":"#065f46"}}>
-              {item.risk==="high"?"高風險":"低風險"}
-            </span>
-          </div>
-          <div style={{background:"#f9fafb",borderRadius:8,padding:"6px 8px",marginBottom:6}}>
-            <div style={{fontSize:8,color:"#9ca3af",marginBottom:2}}>用戶訊息</div>
-            <div style={{fontSize:10,color:"#374151"}}>{item.msg}</div>
-          </div>
-          <div style={{background:"#eff6ff",borderRadius:8,padding:"6px 8px",marginBottom:8}}>
-            <div style={{fontSize:8,color:"#93c5fd",marginBottom:2}}>AI 草稿</div>
-            <div style={{fontSize:10,color:"#374151"}}>{item.draft}</div>
-          </div>
-          <div style={{display:"flex",gap:6}}>
-            {[["✓ 核准發送","#16a34a","#fff"],["✎ 編輯","#fff","#374151"],["✕ 拒絕","#fff","#dc2626"]].map(([label,bg,color])=>(
-              <button key={String(label)} style={{flex:1,background:String(bg),color:String(color),border:`1px solid ${String(bg)==="#fff"?"#e5e7eb":"transparent"}`,borderRadius:8,padding:"5px 0",fontSize:9,fontWeight:600,cursor:"pointer"}}>
-                {label}
-              </button>
+              </div>
             ))}
           </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }
 
-function AnalyticsMockup() {
-  const bars = [65,80,45,90,72,88,55,95,70,85,60,78];
-  const max = Math.max(...bars);
-  return (
-    <div style={{background:"#fff",borderRadius:16,border:"1px solid #f0f0f0",padding:16}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-        <div style={{fontSize:10,fontWeight:700,color:"#6b7280",textTransform:"uppercase",letterSpacing:1}}>訊息量趨勢（近 12 日）</div>
-        <span style={{fontSize:10,color:"#16a34a",fontWeight:600}}>↑ 23% 本月</span>
-      </div>
-      <div style={{display:"flex",alignItems:"flex-end",gap:4,height:80,marginBottom:8}}>
-        {bars.map((h,i)=>(
-          <div key={i} style={{flex:1,height:`${h/max*100}%`,borderRadius:"4px 4px 0 0",background:h===max?"#1a56db":"#dbeafe",transition:"height .3s"}}/>
-        ))}
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:12}}>
-        {[["總訊息","14,832"],["平均回應","1.2s"],["滿意度","94.7%"]].map(([l,v])=>(
-          <div key={String(l)} style={{background:"#f9fafb",borderRadius:10,padding:"8px 10px",textAlign:"center"}}>
-            <div style={{fontSize:15,fontWeight:700}}>{v}</div>
-            <div style={{fontSize:9,color:"#9ca3af",marginTop:2}}>{l}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// ── Main page ─────────────────────────────────────────────────
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeIndustry, setActiveIndustry] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  const ind = industries[activeIndustry];
+
   return (
-    <div style={{minHeight:"100vh",background:"#fff",color:"#111",fontFamily:"system-ui, -apple-system, sans-serif"}}>
+    <div style={{ minHeight: "100vh", background: "#fff", color: "#111", fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif" }}>
 
-      {/* Nav */}
-      <nav style={{
-        position:"fixed",top:0,left:0,right:0,zIndex:50,
-        transition:"all .3s",
-        background:scrolled?"rgba(255,255,255,0.97)":"transparent",
-        backdropFilter:scrolled?"blur(12px)":"none",
-        borderBottom:scrolled?"1px solid #f0f0f0":"none",
-        boxShadow:scrolled?"0 1px 20px rgba(0,0,0,0.06)":"none",
-      }}>
-        <div style={{maxWidth:1120,margin:"0 auto",padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <img src="/logo.png" alt="MyWrapper Technologies" style={{height:34,width:"auto",objectFit:"contain"}} onError={(e)=>{(e.target as HTMLImageElement).style.display="none"}} />
-          <div style={{display:"flex",alignItems:"center",gap:32}}>
-            {[["功能","#features"],["示意圖","#demo"],["定價","#pricing"],["FAQ","#faq"]].map(([label,href])=>(
-              <a key={String(label)} href={String(href)} style={{fontSize:14,color:"#6b7280",textDecoration:"none",transition:"color .2s"}}
-                onMouseEnter={e=>(e.target as HTMLElement).style.color="#111"}
-                onMouseLeave={e=>(e.target as HTMLElement).style.color="#6b7280"}>
-                {label}
-              </a>
-            ))}
-          </div>
-          <Link href="/login" style={{background:"#1a56db",color:"#fff",fontSize:13,padding:"8px 20px",borderRadius:12,fontWeight:500,textDecoration:"none",transition:"background .2s"}}
-            onMouseEnter={e=>(e.target as HTMLElement).style.background="#1d4ed8"}
-            onMouseLeave={e=>(e.target as HTMLElement).style.background="#1a56db"}>
-            登入後台
-          </Link>
-        </div>
-      </nav>
+      <Nav scrolled={scrolled} />
 
-      {/* Hero */}
-      <section style={{paddingTop:120,paddingBottom:80,paddingLeft:24,paddingRight:24,maxWidth:1120,margin:"0 auto"}}>
-        <div style={{textAlign:"center",maxWidth:720,margin:"0 auto"}}>
-          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"#eff6ff",color:"#1d4ed8",fontSize:12,padding:"6px 16px",borderRadius:100,border:"1px solid #bfdbfe",marginBottom:24}}>
-            <span style={{width:6,height:6,borderRadius:"50%",background:"#3b82f6",display:"inline-block"}}/>
-            台灣首選 AI 客服管理平台
+      {/* ── Hero ── */}
+      <section style={{ paddingTop: 110, paddingBottom: 80, paddingLeft: 24, paddingRight: 24, maxWidth: 1120, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1d4ed8", fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 100, border: "1px solid #bfdbfe", marginBottom: 24 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6", display: "inline-block" }} />
+            台灣首選 AI 員工管理平台
           </div>
-          <h1 style={{fontSize:52,fontWeight:700,lineHeight:1.1,letterSpacing:-1,marginBottom:20,margin:"0 0 20px"}}>
-            AI 客服，<span style={{color:"#1a56db"}}>讓人放心</span>交給你
+          <h1 style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 20 }}>
+            雇一個 AI 員工，<br />
+            <span style={{ color: "#1a56db" }}>今天就能上班</span>
           </h1>
-          <p style={{fontSize:17,color:"#6b7280",lineHeight:1.7,marginBottom:36,maxWidth:580,margin:"0 auto 36px"}}>
-            不用碰程式碼。圖形化管理多個客戶的 AI Agent、多通道接入、人工審核、成本監控。把 AI 從工程師工具，變成業務團隊敢用的企業控制台。
+          <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 12, maxWidth: 580, margin: "0 auto 12px" }}>
+            不用請工程師、不用懂 AI、不用等 3 個月。
           </p>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,flexWrap:"wrap"}}>
-            <Link href="/login" style={{background:"#1a56db",color:"#fff",padding:"12px 28px",borderRadius:12,fontSize:15,fontWeight:600,textDecoration:"none",boxShadow:"0 4px 14px rgba(26,86,219,0.3)"}}>
+          <p style={{ fontSize: 17, color: "#555", lineHeight: 1.8, marginBottom: 36, maxWidth: 580, margin: "0 auto 36px" }}>
+            填寫角色設定、上傳你的產品資料、連接 LINE 或 Telegram，<br />
+            <strong style={{ color: "#111" }}>AI 員工當天就能開始服務你的客戶。</strong>
+          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+            <Link href="/login" style={{ background: "#1a56db", color: "#fff", padding: "14px 32px", borderRadius: 12, fontSize: 16, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 20px rgba(26,86,219,0.3)" }}>
               免費試用 14 天
             </Link>
-            <a href="#demo" style={{border:"1px solid #e5e7eb",color:"#374151",padding:"12px 28px",borderRadius:12,fontSize:15,textDecoration:"none",background:"#fff"}}>
-              看 Demo →
+            <a href="#how" style={{ border: "1px solid #e5e7eb", color: "#374151", padding: "14px 32px", borderRadius: 12, fontSize: 16, textDecoration: "none" }}>
+              看看怎麼運作 →
             </a>
           </div>
-          <div style={{display:"flex",flexWrap:"wrap",alignItems:"center",justifyContent:"center",gap:24,marginTop:28}}>
-            {["無需信用卡","14 天免費試用","隨時取消","台灣在地支援"].map(t=>(
-              <span key={t} style={{fontSize:13,color:"#9ca3af",display:"flex",alignItems:"center",gap:6}}>
-                <span style={{color:"#16a34a"}}>✓</span>{t}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 24, marginTop: 24 }}>
+            {["不需要工程師", "當天上線", "隨時可調整", "你全程掌控"].map(t => (
+              <span key={t} style={{ fontSize: 13, color: "#9ca3af", display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ color: "#16a34a", fontWeight: 700 }}>✓</span>{t}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Stats */}
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginTop:64}}>
-          {stats.map(s=>(
-            <div key={s.value} style={{textAlign:"center",padding:"20px 16px",background:"#f9fafb",borderRadius:20,border:"1px solid #f0f0f0"}}>
-              <div style={{fontSize:40,fontWeight:800,color:"#1a56db",lineHeight:1}}>{s.value}</div>
-              <div style={{fontSize:14,fontWeight:600,marginTop:6}}>{s.label}</div>
-              <div style={{fontSize:11,color:"#9ca3af",marginTop:4,lineHeight:1.5}}>{s.sub}</div>
-            </div>
-          ))}
+        {/* Dashboard preview */}
+        <div style={{ marginTop: 64, boxShadow: "0 32px 80px rgba(26,86,219,0.12)", borderRadius: 20 }}>
+          <DashMockup />
         </div>
       </section>
 
-      {/* Demo */}
-      <section id="demo" style={{padding:"80px 24px",background:"linear-gradient(to bottom, #f9fafb, #fff)"}}>
-        <div style={{maxWidth:1120,margin:"0 auto"}}>
-          <div style={{textAlign:"center",marginBottom:48}}>
-            <h2 style={{fontSize:36,fontWeight:700,marginBottom:12}}>一個後台，掌控全局</h2>
-            <p style={{fontSize:15,color:"#6b7280",maxWidth:480,margin:"0 auto"}}>
-              從訊息量、費用、Agent 狀態到即時 Log，所有資訊都在同一個畫面。
-            </p>
-          </div>
-          <DashboardMockup />
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,marginTop:24}}>
-            <div>
-              <h3 style={{fontSize:18,fontWeight:600,marginBottom:6}}>人工審核介面</h3>
-              <p style={{fontSize:13,color:"#6b7280",marginBottom:16}}>AI 草稿 → 人工確認 → 一鍵發送，高風險訊息自動標記。</p>
-              <ReviewMockup />
+      {/* ── Pain points ── */}
+      <section id="pain" style={{ padding: "96px 24px", background: "#0f172a", color: "#fff" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(239,68,68,0.15)", color: "#fca5a5", fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 100, marginBottom: 20, textTransform: "uppercase", letterSpacing: 1 }}>
+              你是否也有這些問題
             </div>
-            <div>
-              <h3 style={{fontSize:18,fontWeight:600,marginBottom:6}}>數據分析報表</h3>
-              <p style={{fontSize:13,color:"#6b7280",marginBottom:16}}>訊息量趨勢、回應時間、滿意度，一鍵匯出客戶月報。</p>
-              <AnalyticsMockup />
-            </div>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>現在的痛點</h2>
+            <p style={{ fontSize: 16, color: "#94a3b8" }}>你不孤單。這些問題我們都看到了，也都解決了。</p>
           </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" style={{padding:"80px 24px",maxWidth:1120,margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:56}}>
-          <h2 style={{fontSize:36,fontWeight:700,marginBottom:12}}>為什麼選擇 MyWrapper？</h2>
-          <p style={{fontSize:15,color:"#6b7280",maxWidth:480,margin:"0 auto"}}>
-            每個功能都是針對真實業務痛點設計，不是為了功能而功能。
-          </p>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-          {features.map(f=>(
-            <div key={f.title} style={{padding:24,borderRadius:20,border:"1px solid #f0f0f0",background:"#fff",transition:"all .2s",cursor:"default"}}
-              onMouseEnter={e=>{(e.currentTarget as HTMLDivElement).style.borderColor="#bfdbfe";(e.currentTarget as HTMLDivElement).style.background="#eff6ff"}}
-              onMouseLeave={e=>{(e.currentTarget as HTMLDivElement).style.borderColor="#f0f0f0";(e.currentTarget as HTMLDivElement).style.background="#fff"}}>
-              <div style={{display:"flex",alignItems:"flex-start",gap:16}}>
-                <div style={{fontSize:28,flexShrink:0}}>{f.icon}</div>
-                <div style={{flex:1}}>
-                  <h3 style={{fontSize:15,fontWeight:700,marginBottom:10}}>{f.title}</h3>
-                  <div style={{marginBottom:8}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#ef4444",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>業務痛點</div>
-                    <p style={{fontSize:12,color:"#6b7280",lineHeight:1.6}}>{f.pain}</p>
-                  </div>
-                  <div style={{marginBottom:12}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#1a56db",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>MyWrapper 的解法</div>
-                    <p style={{fontSize:12,color:"#374151",lineHeight:1.6}}>{f.solution}</p>
-                  </div>
-                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                    {f.tags.map(tag=>(
-                      <span key={tag} style={{fontSize:10,background:"#f3f4f6",color:"#6b7280",padding:"2px 8px",borderRadius:100}}>{tag}</span>
-                    ))}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {pains.map((p, i) => (
+              <div key={i} style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+                {/* Before */}
+                <div style={{ background: "rgba(239,68,68,0.1)", padding: 20, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <span style={{ fontSize: 24, flexShrink: 0 }}>{p.emoji}</span>
+                    <div>
+                      <div style={{ fontSize: 10, color: "#fca5a5", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>現在的狀況</div>
+                      <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6 }}>{p.before}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section style={{padding:"80px 24px",background:"#f9fafb"}}>
-        <div style={{maxWidth:1120,margin:"0 auto"}}>
-          <div style={{textAlign:"center",marginBottom:56}}>
-            <h2 style={{fontSize:36,fontWeight:700,marginBottom:12}}>上線只需要 4 個步驟</h2>
-            <p style={{fontSize:15,color:"#6b7280"}}>Done-for-You 方案由我們全程協助，你只需要提供業務資訊。</p>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}}>
-            {[
-              {step:"01",title:"建立 Workspace",desc:"為每個客戶建立獨立工作空間，設定品牌名稱、方案、成員權限。",time:"5 分鐘"},
-              {step:"02",title:"設定 Agent",desc:"定義 AI 角色、System Prompt、工具，上傳知識庫文件。",time:"30 分鐘"},
-              {step:"03",title:"串接通道",desc:"把 LINE OA、Telegram Bot 等平台的 Webhook 指向 MyWrapper。",time:"15 分鐘"},
-              {step:"04",title:"上線監控",desc:"設定告警、審核流程、費用預算，開始接收真實訊息。",time:"隨時"},
-            ].map(s=>(
-              <div key={s.step} style={{background:"#fff",borderRadius:20,border:"1px solid #f0f0f0",padding:24}}>
-                <div style={{fontSize:36,fontWeight:800,color:"#e5e7eb",marginBottom:16}}>{s.step}</div>
-                <h3 style={{fontSize:15,fontWeight:700,marginBottom:8}}>{s.title}</h3>
-                <p style={{fontSize:12,color:"#6b7280",lineHeight:1.6,marginBottom:16}}>{s.desc}</p>
-                <span style={{fontSize:11,background:"#eff6ff",color:"#1a56db",padding:"4px 12px",borderRadius:100,fontWeight:600}}>{s.time}</span>
+                {/* After */}
+                <div style={{ background: "rgba(26,86,219,0.12)", padding: 20 }}>
+                  <div style={{ fontSize: 10, color: "#93c5fd", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>用 MyWrapper 之後</div>
+                  <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6 }}>{p.after}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" style={{padding:"80px 24px",maxWidth:1120,margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:56}}>
-          <h2 style={{fontSize:36,fontWeight:700,marginBottom:12}}>清楚定價，按需選擇</h2>
-          <p style={{fontSize:15,color:"#6b7280"}}>所有方案均提供 14 天免費試用，隨時可升級，不綁約</p>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:20}}>
-          {plans.map(plan=>(
-            <div key={plan.name} style={{
-              borderRadius:20,border:`1px solid ${plan.highlight?"#93c5fd":"#f0f0f0"}`,
-              padding:28,position:"relative",display:"flex",flexDirection:"column",
-              background:plan.highlight?"#f0f7ff":"#fff",
-              boxShadow:plan.highlight?"0 8px 30px rgba(26,86,219,0.12)":"none",
-            }}>
-              {"badge" in plan && plan.badge && (
-                <div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)",background:"#1a56db",color:"#fff",fontSize:11,fontWeight:700,padding:"4px 16px",borderRadius:100,whiteSpace:"nowrap"}}>
-                  {plan.badge}
+      {/* ── Industry use cases ── */}
+      <section id="industry" style={{ padding: "96px 24px", background: "#f9fafb" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <SectionLabel>對號入座</SectionLabel>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>你的行業，我們都見過</h2>
+            <p style={{ fontSize: 16, color: "#6b7280" }}>選擇你的行業，看看 MyWrapper 如何解決你的具體問題。</p>
+          </div>
+
+          {/* Industry tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 32, flexWrap: "wrap", justifyContent: "center" }}>
+            {industries.map((ind, i) => (
+              <button key={i} onClick={() => setActiveIndustry(i)}
+                style={{
+                  padding: "10px 20px", borderRadius: 100, fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all .2s",
+                  background: activeIndustry === i ? "#1a56db" : "#fff",
+                  color: activeIndustry === i ? "#fff" : "#374151",
+                  border: activeIndustry === i ? "1px solid #1a56db" : "1px solid #e5e7eb",
+                  boxShadow: activeIndustry === i ? "0 4px 14px rgba(26,86,219,0.2)" : "none",
+                }}>
+                {ind.icon} {ind.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Industry detail */}
+          <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #e5e7eb", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 360 }}>
+              {/* Left: pains */}
+              <div style={{ padding: 40, background: "#fff8f8", borderRight: "1px solid #e5e7eb" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", letterSpacing: 1, marginBottom: 20 }}>
+                  {ind.icon} {ind.name} 的典型痛點
                 </div>
-              )}
-              <div style={{marginBottom:24}}>
-                <div style={{fontSize:16,fontWeight:700}}>{plan.name}</div>
-                <div style={{fontSize:12,color:"#9ca3af",marginTop:2,marginBottom:16}}>{plan.desc}</div>
-                <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-                  <span style={{fontSize:36,fontWeight:800}}>{plan.price}</span>
-                  <span style={{fontSize:14,color:"#9ca3af"}}>{plan.period}</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {ind.pains.map((pain, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                      <span style={{ color: "#ef4444", fontSize: 16, flexShrink: 0, marginTop: 1 }}>✕</span>
+                      <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7 }}>{pain}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <ul style={{listStyle:"none",padding:0,margin:"0 0 24px",flex:1}}>
-                {plan.items.map(item=>(
-                  <li key={item} style={{display:"flex",alignItems:"flex-start",gap:10,fontSize:13,color:"#374151",marginBottom:10}}>
-                    <span style={{color:"#1a56db",flexShrink:0,marginTop:1}}>✓</span>{item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/login" style={{
-                display:"block",textAlign:"center",padding:"12px 0",borderRadius:12,fontSize:14,fontWeight:600,textDecoration:"none",
-                background:plan.highlight?"#1a56db":"transparent",
-                color:plan.highlight?"#fff":"#374151",
-                border:plan.highlight?"none":"1px solid #e5e7eb",
-              }}>
-                {plan.cta}
-              </Link>
+              {/* Right: solutions */}
+              <div style={{ padding: 40 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#1a56db", textTransform: "uppercase", letterSpacing: 1, marginBottom: 20 }}>
+                  MyWrapper 的解法
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+                  {ind.solutions.map((sol, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                      <span style={{ color: "#16a34a", fontSize: 16, flexShrink: 0, marginTop: 1 }}>✓</span>
+                      <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7 }}>{sol}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* AI agent showcase */}
+                <div style={{ background: "#f0f7ff", borderRadius: 12, padding: "14px 18px", marginBottom: 20, border: "1px solid #bfdbfe" }}>
+                  <div style={{ fontSize: 10, color: "#3b82f6", fontWeight: 700, marginBottom: 4 }}>推薦 AI 員工設定</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#1e40af" }}>{ind.agent}</div>
+                </div>
+                {/* Metrics */}
+                <div style={{ display: "flex", gap: 12 }}>
+                  {ind.metrics.map((m, i) => (
+                    <div key={i} style={{ flex: 1, background: "#f9fafb", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#111" }}>{m}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-        <div style={{background:"linear-gradient(135deg,#1e293b,#0f172a)",borderRadius:20,padding:32,display:"flex",alignItems:"center",justifyContent:"space-between",gap:24,color:"#fff"}}>
-          <div>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
-              <span style={{fontSize:22}}>🚀</span>
-              <span style={{fontSize:18,fontWeight:700}}>Done-for-You 導入版</span>
-            </div>
-            <p style={{fontSize:13,color:"#94a3b8",maxWidth:500,lineHeight:1.6}}>
-              安裝部署、初始設定、Prompt 建置、Channel 串接、教育訓練、上線後 1 個月支援，一次搞定。適合沒有技術團隊的企業。
-            </p>
-          </div>
-          <div style={{textAlign:"center",flexShrink:0}}>
-            <div style={{fontSize:26,fontWeight:800,marginBottom:4}}>NT$15,000 起</div>
-            <div style={{fontSize:11,color:"#64748b",marginBottom:16}}>一次性導入費 + 月維護費</div>
-            <Link href="mailto:contact@mywrapper.ai" style={{display:"inline-block",background:"#fff",color:"#1e293b",fontWeight:700,padding:"10px 24px",borderRadius:12,fontSize:13,textDecoration:"none"}}>
-              立即詢問
-            </Link>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" style={{padding:"80px 24px",background:"#f9fafb"}}>
-        <div style={{maxWidth:720,margin:"0 auto"}}>
-          <h2 style={{fontSize:36,fontWeight:700,textAlign:"center",marginBottom:48}}>常見問題</h2>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {faqs.map(f=>(
-              <details key={f.q} style={{background:"#fff",border:"1px solid #f0f0f0",borderRadius:16,overflow:"hidden"}}>
-                <summary style={{padding:"16px 24px",fontSize:14,fontWeight:600,cursor:"pointer",listStyle:"none",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      {/* ── How it works ── */}
+      <section id="how" style={{ padding: "96px 24px", background: "#fff" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <SectionLabel>有多簡單</SectionLabel>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>從零到 AI 員工上班，最快當天</h2>
+            <p style={{ fontSize: 16, color: "#6b7280" }}>不需要工程師，不需要培訓，不需要等待。</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16 }}>
+            {steps.map(s => (
+              <div key={s.num} style={{ borderRadius: 20, border: "1px solid #f0f0f0", overflow: "hidden" }}>
+                <div style={{ background: s.color, padding: "24px 24px 20px" }}>
+                  <div style={{ fontSize: 44, fontWeight: 900, color: s.accent, opacity: 0.2, lineHeight: 1, marginBottom: 8 }}>{s.num}</div>
+                  <div style={{ display: "inline-block", background: s.accent, color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 100, marginBottom: 12 }}>
+                    {s.time}
+                  </div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "#111" }}>{s.title}</h3>
+                </div>
+                <div style={{ padding: "20px 24px 24px", background: "#fff" }}>
+                  <p style={{ fontSize: 13, color: "#555", lineHeight: 1.7, marginBottom: 12 }}>{s.desc}</p>
+                  <p style={{ fontSize: 12, color: s.accent, fontWeight: 600 }}>{s.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Monitoring ── */}
+      <section style={{ padding: "96px 24px", background: "#0f172a", color: "#fff" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(26,86,219,0.2)", color: "#93c5fd", fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 100, marginBottom: 20, textTransform: "uppercase", letterSpacing: 1 }}>
+              AI 員工監督機制
+            </div>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>AI 員工每天在做什麼，<br />你一清二楚</h2>
+            <p style={{ fontSize: 16, color: "#94a3b8" }}>雇了 AI 員工不代表放棄控制。MyWrapper 給你全程透明的監督工具。</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+            {monitoring.map(m => (
+              <div key={m.title} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", padding: 28, transition: "all .2s" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(26,86,219,0.15)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(147,197,253,0.3)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)"; }}>
+                <div style={{ fontSize: 28, marginBottom: 16 }}>{m.icon}</div>
+                <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10, color: "#f1f5f9" }}>{m.title}</h3>
+                <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.7 }}>{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section id="pricing" style={{ padding: "96px 24px", background: "#f9fafb" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <SectionLabel>方案定價</SectionLabel>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>清楚定價，按需選擇</h2>
+            <p style={{ fontSize: 16, color: "#6b7280" }}>所有方案 14 天免費試用，不需信用卡，隨時可取消</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20, marginBottom: 20 }}>
+            {plans.map(plan => (
+              <div key={plan.name} style={{
+                borderRadius: 20, border: `${plan.highlight ? 2 : 1}px solid ${plan.highlight ? "#1a56db" : "#e5e7eb"}`,
+                padding: 32, display: "flex", flexDirection: "column", position: "relative",
+                background: plan.highlight ? "#fff" : "#fff",
+                boxShadow: plan.highlight ? "0 8px 40px rgba(26,86,219,0.15)" : "none",
+              }}>
+                {"badge" in plan && plan.badge && (
+                  <div style={{ position: "absolute", top: -16, left: "50%", transform: "translateX(-50%)", background: "#1a56db", color: "#fff", fontSize: 11, fontWeight: 700, padding: "5px 18px", borderRadius: 100, whiteSpace: "nowrap" }}>
+                    {plan.badge}
+                  </div>
+                )}
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: 18, fontWeight: 800 }}>{plan.name}</div>
+                  <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 2, marginBottom: 16 }}>{plan.desc}</div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                    <span style={{ fontSize: 38, fontWeight: 900 }}>{plan.price}</span>
+                    <span style={{ fontSize: 15, color: "#9ca3af" }}>{plan.period}</span>
+                  </div>
+                </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", flex: 1 }}>
+                  {plan.items.map(item => (
+                    <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13, color: "#374151", marginBottom: 12 }}>
+                      <span style={{ color: "#1a56db", flexShrink: 0, fontWeight: 700 }}>✓</span>{item}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/login" style={{
+                  display: "block", textAlign: "center", padding: "14px 0", borderRadius: 12, fontSize: 14, fontWeight: 700, textDecoration: "none",
+                  background: plan.highlight ? "#1a56db" : "transparent",
+                  color: plan.highlight ? "#fff" : "#374151",
+                  border: plan.highlight ? "none" : "1px solid #e5e7eb",
+                  boxShadow: plan.highlight ? "0 4px 14px rgba(26,86,219,0.25)" : "none",
+                }}>
+                  {plan.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+          {/* Done for you */}
+          <div style={{ background: "linear-gradient(135deg, #1e293b, #0f172a)", borderRadius: 20, padding: "32px 40px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, color: "#fff" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <span style={{ fontSize: 22 }}>🚀</span>
+                <span style={{ fontSize: 20, fontWeight: 800 }}>Done-for-You 導入版</span>
+              </div>
+              <p style={{ fontSize: 14, color: "#94a3b8", maxWidth: 520, lineHeight: 1.7 }}>
+                什麼都不用做。告訴我們你的業務，我們幫你完成所有設定：
+                部署、AI 員工設定、通道串接、知識庫建立、教育訓練，3 個工作天上線。
+              </p>
+            </div>
+            <div style={{ textAlign: "center", flexShrink: 0 }}>
+              <div style={{ fontSize: 28, fontWeight: 900 }}>NT$15,000 起</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginBottom: 16 }}>一次性導入費</div>
+              <Link href="mailto:contact@mywrapper.ai" style={{ display: "inline-block", background: "#fff", color: "#1e293b", fontWeight: 700, padding: "12px 28px", borderRadius: 12, fontSize: 14, textDecoration: "none" }}>
+                立即詢問
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section style={{ padding: "96px 24px", background: "#fff" }}>
+        <div style={{ maxWidth: 740, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 52 }}>
+            <SectionLabel>常見問題</SectionLabel>
+            <h2 style={{ fontSize: 38, fontWeight: 800 }}>你可能想問的問題</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {faqs.map(f => (
+              <details key={f.q} style={{ background: "#f9fafb", border: "1px solid #f0f0f0", borderRadius: 16, overflow: "hidden" }}>
+                <summary style={{ padding: "18px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", listStyle: "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   {f.q}
-                  <span style={{color:"#9ca3af",fontSize:11}}>▼</span>
+                  <span style={{ color: "#9ca3af", fontSize: 11, flexShrink: 0, marginLeft: 16 }}>▼</span>
                 </summary>
-                <p style={{padding:"0 24px 20px",fontSize:13,color:"#6b7280",lineHeight:1.7,margin:0}}>{f.a}</p>
+                <p style={{ padding: "0 24px 22px", fontSize: 14, color: "#555", lineHeight: 1.8, margin: 0 }}>{f.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section style={{padding:"80px 24px"}}>
-        <div style={{maxWidth:720,margin:"0 auto",textAlign:"center",background:"linear-gradient(135deg,#1a56db,#1e40af)",borderRadius:28,padding:64,color:"#fff"}}>
-          <h2 style={{fontSize:34,fontWeight:700,marginBottom:12}}>準備好讓 AI 開始工作了嗎？</h2>
-          <p style={{fontSize:15,color:"#bfdbfe",marginBottom:32,lineHeight:1.7}}>
-            14 天免費試用，不需信用卡。<br/>或聯絡我們安排一對一 Demo，了解如何適配你的業務。
+      {/* ── Final CTA ── */}
+      <section style={{ padding: "80px 24px", background: "#f9fafb" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", background: "linear-gradient(135deg, #1a56db, #1e40af)", borderRadius: 28, padding: "72px 48px", color: "#fff" }}>
+          <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 16 }}>
+            你的 AI 員工，<br />今天就能上班
+          </h2>
+          <p style={{ fontSize: 16, color: "#bfdbfe", marginBottom: 36, lineHeight: 1.8 }}>
+            14 天免費試用，不需信用卡。<br />
+            今天建立 Agent，明天就可以自動回覆客戶。
           </p>
-          <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
-            <Link href="/login" style={{background:"#fff",color:"#1a56db",fontWeight:700,padding:"12px 28px",borderRadius:14,fontSize:15,textDecoration:"none",boxShadow:"0 4px 14px rgba(0,0,0,0.15)"}}>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/login" style={{ background: "#fff", color: "#1a56db", fontWeight: 800, padding: "14px 32px", borderRadius: 14, fontSize: 16, textDecoration: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}>
               免費試用 14 天
             </Link>
-            <Link href="mailto:contact@mywrapper.ai" style={{border:"1px solid rgba(255,255,255,0.4)",color:"#fff",padding:"12px 28px",borderRadius:14,fontSize:15,textDecoration:"none",fontWeight:500}}>
+            <Link href="mailto:contact@mywrapper.ai" style={{ border: "1px solid rgba(255,255,255,0.4)", color: "#fff", padding: "14px 32px", borderRadius: 14, fontSize: 16, textDecoration: "none", fontWeight: 500 }}>
               預約 Demo
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer style={{borderTop:"1px solid #f0f0f0",padding:"32px 24px"}}>
-        <div style={{maxWidth:1120,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
-          <img src="/logo.png" alt="MyWrapper" style={{height:28,width:"auto",objectFit:"contain"}} onError={(e)=>{(e.target as HTMLImageElement).style.display="none"}} />
-          <p style={{fontSize:12,color:"#9ca3af"}}>© 2026 MyWrapper Technologies · Powered by Claude AI</p>
-          <div style={{display:"flex",gap:24}}>
-            <Link href="/login" style={{fontSize:12,color:"#9ca3af",textDecoration:"none"}}>後台登入</Link>
-            <Link href="mailto:contact@mywrapper.ai" style={{fontSize:12,color:"#9ca3af",textDecoration:"none"}}>聯絡我們</Link>
+      {/* ── Footer ── */}
+      <footer style={{ borderTop: "1px solid #f0f0f0", padding: "32px 24px" }}>
+        <div style={{ maxWidth: 1120, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+          <img src="/logo.png" alt="MyWrapper" style={{ height: 30, width: "auto", objectFit: "contain" }}
+            onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          <p style={{ fontSize: 12, color: "#9ca3af" }}>© 2026 MyWrapper Technologies · Powered by Claude AI</p>
+          <div style={{ display: "flex", gap: 24 }}>
+            <Link href="/login" style={{ fontSize: 12, color: "#9ca3af", textDecoration: "none" }}>後台登入</Link>
+            <Link href="mailto:contact@mywrapper.ai" style={{ fontSize: 12, color: "#9ca3af", textDecoration: "none" }}>聯絡我們</Link>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
