@@ -4,11 +4,13 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public paths
+  // Allow all public paths
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/portal") ||
     pathname.startsWith("/landing") ||
+    pathname.startsWith("/marketplace") ||
+    pathname.startsWith("/creator") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname.includes(".")
@@ -16,9 +18,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect root to dashboard
+  // Redirect root to login
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
