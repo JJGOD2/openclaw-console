@@ -41,42 +41,91 @@ const industries = [
   {
     icon: "🛒",
     name: "電商 / 零售",
-    pains: ["訂單查詢、退換貨佔客服量 70%，純人工應付不來", "促銷期間訊息量暴增 5 倍，臨時找不到人"],
-    solutions: ["自動處理訂單查詢、物流追蹤、退換貨申請", "連接 Google Sheets 同步訂單資料，AI 即時查詢回覆"],
+    pains: [
+      "每天幾百則訂單查詢、物流催件、退換貨，客服人員光這些就佔掉 70% 的時間，還要被客人罵說回太慢。",
+      "雙 11、週年慶一到，訊息量暴增 5 倍，臨時找工讀生來不及教，只能讓客人乾等。",
+    ],
+    solutions: [
+      "AI 員工自動識別客人的問題類型，訂單查詢、物流狀況、退換貨申請，每一類都有對應的標準回答，再也不需要人工複製貼上。",
+      "連接你的 Google Sheets 訂單資料表，客人問「我的訂單到哪了？」AI 直接查資料庫回覆，比人工快 10 倍。",
+      "促銷期間流量再大，AI 照樣秒回，不需要加人、不需要加班，成本固定。",
+    ],
     agent: "客服 Aria — 電商版",
-    metrics: ["↓ 80% 客服工作量", "↑ 24 小時回覆率", "= 3 天上線"],
+    metrics: ["↓ 80% 客服工作量", "↑ 秒級回覆率", "= 3 天上線"],
   },
   {
     icon: "🏠",
     name: "房仲 / 租賃",
-    pains: ["潛在客戶半夜詢問，隔天才回已經找別家了", "預約帶看時間來回確認，一個案件要 Line 10 幾則"],
-    solutions: ["AI 即時回覆案件查詢、自動預約帶看時間", "連接 Google Calendar，帶看行程自動新增"],
+    pains: [
+      "客人半夜在 LINE 問「這間還有嗎？」、「可以降價嗎？」，隔天早上才看到，人已經去別家了。成交機會就這樣溜走。",
+      "預約帶看時間要來回確認、改時間、再確認，一個客人要傳 10 幾則，占掉業務大量精力。",
+    ],
+    solutions: [
+      "AI 員工 24 小時在線，客人凌晨 2 點問，AI 立刻回。基本問題先回答，有意願的客人自動留資料，你早上起來已經有熱門潛在客戶等你聯絡。",
+      "連接 Google Calendar，客人選好時段，帶看行程自動新增到你的行事曆，不需要來回確認，業務時間省下來去跑更多案件。",
+      "常見問題 FAQ、坪數格局、租金行情，AI 都能回，讓客人先了解，你去跑的都是真正有意願的。",
+    ],
     agent: "業務 Rex — 房仲版",
-    metrics: ["↓ 60% 預約往返溝通", "↑ 3x 潛在客戶轉換", "= 1 天上線"],
+    metrics: ["↓ 60% 預約往返", "↑ 3x 潛在客戶回覆", "= 1 天上線"],
   },
   {
     icon: "🏥",
     name: "診所 / 醫療",
-    pains: ["掛號電話從早響到晚，護理師同時要看診又要接電話", "病患問診前說明、注意事項每天重複解釋"],
-    solutions: ["LINE 自動掛號、取消、時段查詢，24 小時不打烊", "衛教資訊自動傳送，診前提醒自動發出"],
+    pains: [
+      "護理師要顧診間、要打電話確認、要接掛號電話、要回 LINE，一個人同時做 4 件事，出錯在所難免，工作人員也很累。",
+      "每天重複跟不同病患解釋同樣的注意事項、費用說明、準備項目，花了大量時間在可以自動化的事情上。",
+    ],
+    solutions: [
+      "LINE 官方帳號自動接受掛號、查詢可預約時段、取消和改約，24 小時不打烊，護理師不用再守著電話。",
+      "術前注意事項、衛教說明、提醒訊息，設定一次自動發出，每個病患都收到一致正確的資訊，不會因為忙碌而漏掉。",
+      "看診前一天自動發提醒，減少爽約率；看診後自動發問卷，收集病患回饋。",
+    ],
     agent: "診所 Luna — 醫療版",
-    metrics: ["↓ 70% 電話詢問量", "↑ 病患滿意度", "= 2 天上線"],
+    metrics: ["↓ 70% 電話詢問量", "↓ 爽約率", "= 2 天上線"],
+  },
+  {
+    icon: "💰",
+    name: "金融 / 保險",
+    pains: [
+      "客戶問保單內容、理賠流程、保費試算，業務員要翻資料查好久，客戶等得不耐煩，成交率直接下降。",
+      "合規問題讓人緊張：AI 如果說錯一句話，可能涉及不實招攬，但全靠人工又忙不過來。",
+    ],
+    solutions: [
+      "AI 員工先回答常見問題、篩選有意願的潛在客戶，業務員只需要接手真正有意願、有需求的人，不用再花時間應付完全沒有概念的詢問。",
+      "所有 AI 回覆強制進入人工審核，業務員確認後才發送，絕對不會有合規風險。敏感話題（如保證獲利、理賠保證）系統自動標記攔截。",
+      "客戶資料、需求記錄自動整理到 Google Sheets，業務員可以清楚追蹤每個潛在客戶的狀態。",
+    ],
+    agent: "金融業務 Fin — 保險版",
+    metrics: ["↑ 業務員效率 3x", "= 零合規風險", "= 2 天上線"],
   },
   {
     icon: "🏢",
     name: "企業內部",
-    pains: ["HR 每天回同樣的問題：請假怎麼申請、福利有哪些", "新人 onboarding 文件散落各處，找資料找半天"],
-    solutions: ["員工自助查詢 HR 政策、假別規定、報帳流程", "連接 Notion 知識庫，文件即時同步，問什麼都有答案"],
+    pains: [
+      "HR 每天被問同樣的問題：「請假怎麼申請？」、「加班費怎麼算？」、「健檢可以自選嗎？」每個人問一遍，HR 快崩潰了。",
+      "新人 onboarding 要花大量時間帶，公司文件散落在 Email、Notion、共用硬碟，新人根本找不到，只好一直問同事。",
+    ],
+    solutions: [
+      "員工用 LINE 或 Slack 直接問 AI，請假規定、福利說明、報帳流程、IT 設備申請，全部秒回，HR 終於可以專心做有價值的事。",
+      "連接 Notion 知識庫，所有公司文件一次整合，新人問 AI 就找得到，不用再麻煩同事。文件更新後 AI 自動同步，永遠回答最新版本。",
+    ],
     agent: "內部助理 HR Bot",
-    metrics: ["↓ 90% 重複性 HR 問答", "↑ 員工滿意度", "= 1 天上線"],
+    metrics: ["↓ 90% 重複性問答", "↑ 員工自助率", "= 1 天上線"],
   },
   {
     icon: "📦",
     name: "客服外包商",
-    pains: ["接了 10 個客戶，每個通道設定、Agent 管理各自獨立，管理成本高", "客戶要月報，整理資料要花 2 天"],
-    solutions: ["多租戶架構，一個後台管理所有客戶，獨立帳單計費", "AI 自動產生月度報告，一鍵發送客戶"],
+    pains: [
+      "接了 10 個客戶，每個客戶的 LINE、Telegram 各自獨立設定，光是管理設定就讓人頭痛，還要個別報告。",
+      "客戶每個月要月報，光是整理對話量、回覆率、常見問題分析就要花 2 天，根本是在幫客戶做苦工。",
+    ],
+    solutions: [
+      "一個後台管理所有客戶的 Workspace，每個客戶獨立設定、獨立帳單、獨立 AI 員工，但你只需要看一個畫面，效率直接翻倍。",
+      "AI 自動產生每月報告：對話量統計、熱門問題分類、費用明細、回覆率趨勢，一鍵發送給每位客戶，2 天的工作變成 5 分鐘。",
+      "接更多客戶不需要等比例增加人力，AI 員工數量隨需擴充，你的利潤空間越來越大。",
+    ],
     agent: "多租戶管理中心",
-    metrics: ["↓ 60% 管理成本", "= 月報自動化", "↑ 可接客戶數量"],
+    metrics: ["↓ 60% 管理成本", "= 月報自動化", "↑ 可接客戶數"],
   },
 ];
 
@@ -354,7 +403,7 @@ export default function LandingPage() {
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6", display: "inline-block" }} />
             台灣首選 AI 員工管理平台
           </div>
-          <h1 style={{ fontSize: 52, fontWeight: 800, lineHeight: 1.1, letterSpacing: -1.5, marginBottom: 20 }}>
+          <h1 style={{ fontSize: 46, fontWeight: 800, lineHeight: 1.15, letterSpacing: -1, marginBottom: 20 }}>
             雇一個 AI 員工，<br />
             <span style={{ color: "#1a56db" }}>今天就能上班</span>
           </h1>
@@ -427,8 +476,8 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1120, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <SectionLabel>對號入座</SectionLabel>
-            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>你的行業，我們都見過</h2>
-            <p style={{ fontSize: 16, color: "#6b7280" }}>選擇你的行業，看看 MyWrapper 如何解決你的具體問題。</p>
+            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>你的行業遇到的問題，都有適合的 Wrapper</h2>
+            <p style={{ fontSize: 16, color: "#6b7280" }}>選一個最像你的情況，看看其他人怎麼用 MyWrapper 解決的。</p>
           </div>
 
           {/* Industry tabs */}
@@ -531,7 +580,7 @@ export default function LandingPage() {
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(26,86,219,0.2)", color: "#93c5fd", fontSize: 12, fontWeight: 600, padding: "6px 16px", borderRadius: 100, marginBottom: 20, textTransform: "uppercase", letterSpacing: 1 }}>
               AI 員工監督機制
             </div>
-            <h2 style={{ fontSize: 38, fontWeight: 800, marginBottom: 12 }}>AI 員工每天在做什麼，<br />你一清二楚</h2>
+            <h2 style={{ fontSize: 34, fontWeight: 800, marginBottom: 12 }}>AI 員工每天在做什麼，你一清二楚</h2>
             <p style={{ fontSize: 16, color: "#94a3b8" }}>雇了 AI 員工不代表放棄控制。MyWrapper 給你全程透明的監督工具。</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
